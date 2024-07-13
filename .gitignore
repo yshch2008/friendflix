@@ -45,3 +45,5 @@ Pipfile.lock
 dmypy.json
 
 data/
+
+backend/xtquant
