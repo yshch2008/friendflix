@@ -1,17 +1,23 @@
 
-# 添加 直接核买
-# 添加 信号核买
+from xtquant import xtdata
+from services.cacheService import *
 
-# 添加 监听买
-# 添加 监听卖
+# input short code but out put full code, and make the short code only stay here
 
+def create_schedule(): # init the kData when add
+    return
 
+def read_schedule(stock_code): # return 
+    return
 
+def update_schedule(): # init the kData when add
+    return
 
-# 做 T
-# 高开, 卖掉
-# 低开持有, 监听买, 
+def delete_schedule(): # init the kData when add
+    return
 
-# 监听卖
+def list_schedule(): # init the kData when add
+    return
 
-# 监听买
+def put_trade_switch(): # init the kData when add
+    return

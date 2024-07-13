@@ -12,14 +12,15 @@ from constants.account_test import qmt_path
 from utils.xtUtil import _to_qmt_code, merge_kdata, get_first_timestamp_of_today, time_to_stamp
 from utils.algorism import *
 from utils.lidu import lidu
+from services.tradeService import *
+from services.cacheService import *
 
 def simpleStart():
     # if neet to buy or sell
     to_trade = False
 
     # 创建资金账号为 xxxxxx 的证券账号对象
-    acct = StockAccount(account_id, 'STOCK')  # STOCK or CREDIT
-    xt_trader = init_xt_trader(acct)
+    xt_trader = init_xt_trader()
     # 关注列表
     stock_list = {"002273":{"name":"水晶光电", "action_type": "buy", "per_amo": 60000, "max_amo": 130000},
                    "300843":{"name":"胜蓝股份" , "action_type": "sell","per_percent": 100, "per_amo": 60000, "max_amo": 130000},
@@ -120,21 +121,3 @@ def simpleStart():
     xtdata.run()
     
     
-def init_xt_trader(account_id):
-    # miniqmt_path = r'D:\QMT交易端模拟\userdata_mini'
-    session_id = int(time.time())  # different strategy has different session_id
-    xt_trader = XtQuantTrader(qmt_path, session_id)
-
-    callback = MyXtQuantTraderCallback()
-    xt_trader.register_callback(callback)
-
-    # 启动交易线程
-    xt_trader.start()
-
-    # 建立交易连接，返回0表示连接成功
-    print('connect, 0 means connected, -1 failed.', xt_trader.connect())
-
-    # 对交易回调进行订阅，订阅后可以收到交易主推，返回0表示订阅成功
-    print('trade call_back register, 0 means registered, -1 failed:', xt_trader.subscribe(account_id))
-
-    return xt_trader
