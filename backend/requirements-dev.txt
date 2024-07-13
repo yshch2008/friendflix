@@ -5,3 +5,4 @@ pre-commit==3.7.1
 pytest-cov==5.0.0
 pytest-watch==4.2.0
 pytest==8.2.2
+matplotlib==2.9.0.post0
