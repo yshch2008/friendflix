@@ -3,11 +3,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 # from  MyTT import *
 from  utils.yourTT import *
-from utils.xtUtil import to_pd_timestamp
+from xtquant import xtconstant
 
 
 # 读取股票数据
-def lidu(kData_list: []) -> pd.DataFrame:
+def fenshi_lidu(kData_list) -> pd.DataFrame:
     df = pd.DataFrame(kData_list)
     #基础数据定义
     TIMESTAMP = df.time.values
@@ -58,10 +58,13 @@ def lidu(kData_list: []) -> pd.DataFrame:
     
     卖出信号 = 二次上穿 | 急涨慢跌 | 尖顶见顶 | (COUNT(二次上穿 | 急涨慢跌 | 尖顶见顶, 60) > 1)
     买入信号 = (二次下穿 | 急跌慢涨 | 尖底见底) & (COUNT(二次上穿 | 急涨慢跌 | 尖顶见顶, 60) < 1 ) # 弱市避雷, 8000亿以上的量能可以考虑, 有企稳走二波的可能性
-    df["卖出信号"] = 卖出信号
-    df["买入信号"] = 买入信号
-    df['时间'] = pd.to_datetime(df['time'], unit='ms')
-    print(df)
+    if 卖出信号:
+        df['fenshi_lidu'] = xtconstant.STOCK_SELL
+    elif 买入信号:
+        df['fenshi_lidu'] = xtconstant.STOCK_BUY
+        
+    # df['时间'] = pd.to_datetime(df['time'], unit='ms')
+    # print(df)
     return df
 
 # 读取股票数据

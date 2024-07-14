@@ -9,7 +9,7 @@ from xtquant import xtconstant
 from constants.account_id import account_id
 from constants.qmt_path import qmt_path
 
-from utils.xtUtil import _to_qmt_code
+from utils.xtUtil import to_full_code
 from utils.algorism import *
 from utils.lidu import lidu
 
@@ -35,12 +35,12 @@ def simpleStart():
             min_data[stock_code] = pd.DataFrame(data)
         # 计算指标
         for stockCode, data in stock_list.items():
-            kdata_signals = lidu(min_data[_to_qmt_code(stockCode)])
+            kdata_signals = lidu(min_data[to_full_code(stockCode)])
             
             if kdata_signals['买入信号'].iloc[-1] > 0:
                 if to_trade:
                     # such as buy 100 stocks of 600xxx at 10
-                    stk = _to_qmt_code(stockCode)
+                    stk = to_full_code(stockCode)
                     vol = 6099 / 100 / data['close'][-1]
                     price = data['close'][-1]
 
@@ -61,7 +61,7 @@ def simpleStart():
                 if kdata_signals['卖出信号'].iloc[-1] > 0:
                     if to_trade:
                         # such as buy 100 stocks of 600xxx at 10
-                        stk = _to_qmt_code(stockCode)
+                        stk = to_full_code(stockCode)
                         vol = data['openInt'][-1]
                         price = data['close'][-1]
 
@@ -82,12 +82,12 @@ def simpleStart():
             
     # 单股订阅分钟K
     # for stockCode, data in buying_list.items():
-    #     full_stock_code = _to_qmt_code(stockCode)
+    #     full_stock_code = to_full_code(stockCode)
     #     xtdata.subscribe_quote(full_stock_code, period=period,count= 240, callback= on_data)
     
     # for stockCode, data in selling_list.items():
-    #     xtdata.subscribe_quote(_to_qmt_code(stockCode), period=period,  end_time='', count= 240, callback= on_data)
-    #     #xtdata.subscribe_quote(_to_qmt_code(stockCode), period=period, start_time='', end_time='', count=0, callback= on_data)
+    #     xtdata.subscribe_quote(to_full_code(stockCode), period=period,  end_time='', count= 240, callback= on_data)
+    #     #xtdata.subscribe_quote(to_full_code(stockCode), period=period, start_time='', end_time='', count=0, callback= on_data)
     for 
     
     init_kData = xtdata.get_market_data(field_list=[], stock_list=[stock_list.keys], period='1d', start_time='', end_time='', count=-1, dividend_type='none', fill_data=True)

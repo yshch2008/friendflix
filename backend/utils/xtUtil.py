@@ -17,7 +17,7 @@ def decode_entity_id(entity_id: str):
     return entity_type, exchange, code
 
 
-def _to_qmt_code(entity_id):
+def to_full_code(entity_id):
     split_char = '.'
     exchange = ''
     if entity_id[:2] == '30':
@@ -29,16 +29,10 @@ def _to_qmt_code(entity_id):
     return f"{entity_id}{split_char}{exchange}"
 
 
-def _to_shortcode(qmt_code):
+def to_short_code(qmt_code):
     code, exchange = qmt_code.split(".")
     exchange = exchange.lower()
     return code
-
-def _to_zvt_entity_id(qmt_code):
-    code, exchange = qmt_code.split(".")
-    exchange = exchange.lower()
-    return f"stock_{exchange}_{code}"
-
 
 def time_to_stamp(xtTime):
     # 获得当前时间时间戳

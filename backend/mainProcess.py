@@ -6,12 +6,12 @@ from xtquant.xttrader import XtQuantTrader, XtQuantTraderCallback
 from xtquant.xttype import StockAccount
 from xtquant import xtconstant
 
-from constants.account_test import account_id
-from constants.account_test import qmt_path
+from backend.constants.config_test import account_id
+from backend.constants.config_test import qmt_path
 
-from utils.xtUtil import _to_qmt_code, merge_kdata, get_first_timestamp_of_today, time_to_stamp
+from utils.xtUtil import to_full_code, merge_kdata, get_first_timestamp_of_today, time_to_stamp
 from utils.algorism import *
-from utils.lidu import lidu
+from strategies.fenshi_lidu import lidu
 from services.tradeService import *
 from services.cacheService import *
 
@@ -19,13 +19,6 @@ def simpleStart():
     # if neet to buy or sell
     to_trade = False
 
-    # 创建资金账号为 xxxxxx 的证券账号对象
-    xt_trader = init_xt_trader()
-    # 关注列表
-    stock_list = {"002273":{"name":"水晶光电", "action_type": "buy", "per_amo": 60000, "max_amo": 130000},
-                   "300843":{"name":"胜蓝股份" , "action_type": "sell","per_percent": 100, "per_amo": 60000, "max_amo": 130000},
-                    "300176":{"name":"派生科技" , "action_type": "sell","per_percent": 100, "per_amo": 60000, "max_amo": 130000}}
-    stock_full_code_list = []
     # 取关列表
     # 使用分钟订阅数据计算信号, 后期改为订阅实时数据
     period = '1m'
@@ -85,16 +78,16 @@ def simpleStart():
             
     # 单股订阅分钟K
     # for stockCode, data in buying_list.items():
-    #     full_stock_code = _to_qmt_code(stockCode)
+    #     full_stock_code = to_full_code(stockCode)
     #     xtdata.subscribe_quote(full_stock_code, period=period,count= 240, callback= on_data)
     
     # for stockCode, data in selling_list.items():
-    #     xtdata.subscribe_quote(_to_qmt_code(stockCode), period=period,  end_time='', count= 240, callback= on_data)
-    #     #xtdata.subscribe_quote(_to_qmt_code(stockCode), period=period, start_time='', end_time='', count=0, callback= on_data)
+    #     xtdata.subscribe_quote(to_full_code(stockCode), period=period,  end_time='', count= 240, callback= on_data)
+    #     #xtdata.subscribe_quote(to_full_code(stockCode), period=period, start_time='', end_time='', count=0, callback= on_data)
     
     day_begin_time = get_first_timestamp_of_today()
     for stock_code in stock_list:
-        stock_full_code = _to_qmt_code(stock_code)
+        stock_full_code = to_full_code(stock_code)
         stock_full_code_list.append(stock_full_code)
         min_data[stock_full_code] = []
         now = time_to_stamp(time.time())
@@ -116,8 +109,6 @@ def simpleStart():
     
     # 订阅全推行情
     book_tickData = xtdata.subscribe_whole_quote(code_list= stock_full_code_list, callback=on_data)
-    
-    
     xtdata.run()
     
     
