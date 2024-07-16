@@ -7,19 +7,18 @@ from xtquant import xtconstant
 
 
 # 读取股票数据
-def fenshi_lidu(kData_list) -> pd.DataFrame:
-    df = pd.DataFrame(kData_list)
+def fenshi_lidu(df:pd.DataFrame) -> pd.DataFrame:
+    # df = pd.DataFrame(kData_list)
     #基础数据定义
     TIMESTAMP = df.time.values
     CLOSE=df.close.values 
     OPEN=df.open.values  
     HIGH=df.high.values
-    VOL=df.volume.values.sum()
-    AMO=df.amount.values.sum()
-    PRE=df.preClose.values
+    VOL=df.volume.values
+    AMO=df.amount.values
+    PRE = REF(CLOSE, 1)
     
     AVE = AMO/ VOL/ 100
-    print("AVE: ", AVE)
     均价向上运行 = (CLOSE > PRE) & (CLOSE/ AVE > 1 + 15/ 1000)
     均价向下运行 = (CLOSE < PRE) & (CLOSE/ AVE < 1 - 15/ 1000)
     
@@ -56,12 +55,14 @@ def fenshi_lidu(kData_list) -> pd.DataFrame:
     尖顶见顶 = SUM(X_27,0)*CROSS(COUNT(CLOSE<REF(CLOSE,1),BARSLAST(X_27)),0.5)
     尖底见底 = SUM(X_28,0)*CROSS(COUNT(CLOSE>REF(CLOSE,1),BARSLAST(X_28)),0.5)
     
-    卖出信号 = 二次上穿 | 急涨慢跌 | 尖顶见顶 | (COUNT(二次上穿 | 急涨慢跌 | 尖顶见顶, 60) > 1)
-    买入信号 = (二次下穿 | 急跌慢涨 | 尖底见底) & (COUNT(二次上穿 | 急涨慢跌 | 尖顶见顶, 60) < 1 ) # 弱市避雷, 8000亿以上的量能可以考虑, 有企稳走二波的可能性
-    if 卖出信号:
-        df['fenshi_lidu'] = xtconstant.STOCK_SELL
-    elif 买入信号:
-        df['fenshi_lidu'] = xtconstant.STOCK_BUY
+    卖出信号 = COUNT(二次上穿 | 急涨慢跌 | 尖顶见顶, 1) >= 1
+    买入信号 = COUNT(二次下穿 | 急跌慢涨 | 尖底见底, 1) >= 1 # 弱市避雷, 8000亿以上的量能可以考虑, 有企稳走二波的可能性 & (COUNT(二次上穿 | 急涨慢跌 | 尖顶见顶, 60) < 1 ) 
+    
+    df['fenshi_lidu'] = xtconstant.STOCK_SELL if 卖出信号[-1] else (xtconstant.STOCK_BUY if 买入信号[-1] else None)
+    # if 卖出信号:
+    #     df['fenshi_lidu'] = xtconstant.STOCK_SELL
+    # elif 买入信号:
+    #     df['fenshi_lidu'] = xtconstant.STOCK_BUY
         
     # df['时间'] = pd.to_datetime(df['time'], unit='ms')
     # print(df)
@@ -76,7 +77,9 @@ def lidu2(df: pd.DataFrame) -> pd.DataFrame:
     HIGH=df.high.values
     VOL=df.volume.values
     AMO=df.amount.values
-    PRE=df.preClose.values
+    # PRE=df.preClose.values
+    PRE = REF(CLOSE, 1)
+    print("AVE: ", AVE)
     
     AVE = AMO/ VOL/ 100
     print("AVE: ", AVE)

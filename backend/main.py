@@ -1,11 +1,14 @@
 import psycopg2
-#from db import close_db, init_db
+
+# from db import close_db, init_db
 from flask import Flask
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from views import all_blueprints
 
-from mainProcess import *
+# from mainProcess import *
+from apis import scheduleApi
+from services.tradeService import init_xt_trader
 
 
 app = Flask(__name__)
@@ -25,17 +28,23 @@ if app.debug:
 
 with app.app_context():
     try:
-        print('hello world')
-        simpleStart()
-        print('hello simpleStart')
-        #init_db(app)
+        print("hello dataService")
+        init_xt_trader()
+        scheduleApi.add_schedules(
+            [{"300176": {"sell": {"fenshi_lidu": {'max_amo': 0, 'single_amo': 0, 'single_percent': 100, 'max_percent': 100, 'begin_time': 930, 'end_time': 1455}}}},
+             {"300843": {"sell": {"fenshi_lidu": {'max_amo': 0, 'single_amo': 0, 'single_percent': 100, 'max_percent': 100, 'begin_time': 930, 'end_time': 1455}}}},
+             ]
+        )
+        # scheduleApi.add_schedule('300176','sell','fenshi_lidu', 0, 0, 100, 100, 930, 1500)
+        # scheduleApi.add_schedule('300843','sell','fenshi_lidu', 0, 0, 100, 100, 930, 1500)
+        # print('hello simpleStart')
+        # init_db(app)
     except psycopg2.errors.ConnectionFailure:
         app.logger.error("Failed to connect to the database, exiting")
         exit(1)
 
 
 # -----------------------------------------------------------------------------
-if __name__ == '__main__':
-    print('hello simpleStart')
-    init_xt_trader()
-    simpleStart()
+if __name__ == "__main__":
+    print("hello simpleStart")
+    # simpleStart()

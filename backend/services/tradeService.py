@@ -4,9 +4,8 @@ from xtquant.xttrader import XtQuantTrader
 from xtquant import xtconstant
 
 
-from backend.constants.config import account_id, qmt_path, split_limit, signal_config
-from cacheService import *
-from scheduleService import *
+from constants.config import account_id, qmt_path, split_limit, real_trade_switch
+from services.scheduleService import fetch_all_schedule
 from utils.MyXtQuantTraderCallback import *
 
 account = StockAccount(account_id, 'STOCK')
@@ -21,6 +20,9 @@ def trade(full_code, direction, strategy_name, price, sync_trade):
     if full_code not in schedules:
         print('Illegal stock code found: ', full_code)
     strategy = schedules[full_code][direction][strategy_name]
+    if not real_trade_switch:
+        print('Real trade is not available: ', full_code, direction, strategy_name, price, sync_trade)
+        return
     if direction == xtconstant.STOCK_BUY:
         if sync_trade:
             sync_buy(full_code, price, strategy['max_amo'], strategy['single_amo'])
@@ -166,22 +168,23 @@ def follow_buy_sell(full_code, direction, vol, price): # 不拆单, 不成交则
         # 部分成交 -- 轮询两次, 调用自己再次下单, 核买次数 += 1
         # 全部成交 -- 
     # such as buy 100 stocks of 600xxx at 10
-    vol = 6099 / 100 / data['close'][-1]
-    price = data['close'][-1]
+    # vol = 6099 / 100 / data['close'][-1]
+    # price = data['close'][-1]
 
-    async_seq = xt_trader.order_stock_async(
-        account,
-        full_code,
-        xtconstant.STOCK_SELL,
-        vol,
-        xtconstant.FIX_PRICE,
-        price,
-        'strategy_name_sell',
-        full_code
-        )
-    print('async_seq', async_seq)
+    # async_seq = xt_trader.order_stock_async(
+    #     account,
+    #     full_code,
+    #     xtconstant.STOCK_SELL,
+    #     vol,
+    #     xtconstant.FIX_PRICE,
+    #     price,
+    #     'strategy_name_sell',
+    #     full_code
+    #     )
+    # print('async_seq', async_seq)
 
 def init_xt_trader():
+    global xt_trader
     session_id = int(time.time())  # different strategy has different session_id
     
     xt_trader = XtQuantTrader(qmt_path, session_id)

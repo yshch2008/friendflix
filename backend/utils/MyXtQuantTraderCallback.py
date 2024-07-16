@@ -1,4 +1,5 @@
 from xtquant.xttrader import  XtQuantTraderCallback
+
 class MyXtQuantTraderCallback(XtQuantTraderCallback):
     def on_disconnected(self):
         """

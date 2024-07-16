@@ -2,6 +2,7 @@
 
 import time
 import pandas as pd
+import numpy as np
 
 def decode_entity_id(entity_id: str):
     """
@@ -17,31 +18,21 @@ def decode_entity_id(entity_id: str):
     return entity_type, exchange, code
 
 
-def to_full_code(entity_id):
-    split_char = '.'
-    exchange = ''
-    if entity_id[:2] == '30':
-        exchange='SZ'
-    elif entity_id[:2] == '00':
-        exchange='SZ'
-    elif entity_id[:2] == '60':
-        exchange='SH'
-    return f"{entity_id}{split_char}{exchange}"
+
+def timestamp_to_stamp_str(xtTime):
+    if type(xtTime) == int:
+        return time.strftime("%Y%m%d%H%M%S", time.localtime(xtTime/ 1000))
+    if type(xtTime) == float:
+        return time.strftime("%Y%m%d%H%M%S", time.localtime(xtTime))
+    if type(xtTime) == np.int64:
+        return time.strftime("%Y%m%d%H%M%S", time.localtime(int(xtTime/1000)))
+        
+    print ('Meet error when convert timestamp_to_stamp_str', type(xtTime))
+    return None
 
 
-def to_short_code(qmt_code):
-    code, exchange = qmt_code.split(".")
-    exchange = exchange.lower()
-    return code
-
-def time_to_stamp(xtTime):
-    # 获得当前时间时间戳
-    now = int(xtTime)
-    #转换为其他日期格式,如:"%Y-%m-%d %H:%M:%S"
-    timeArray = time.localtime(now)
-    otherStyleTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray)
-    print(otherStyleTime)
-    return otherStyleTime
+def time_to_stamp_str(xtTime):
+    return xtTime.strftime("%Y%m%d%H%M%S")
 
 
 def to_pd_timestamp(the_time) -> pd.Timestamp:
