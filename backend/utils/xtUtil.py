@@ -1,6 +1,7 @@
 
 
 import time
+import datetime
 import pandas as pd
 import numpy as np
 
@@ -17,7 +18,9 @@ def decode_entity_id(entity_id: str):
     code = "".join(result[2:])
     return entity_type, exchange, code
 
-
+def get_previous_workday_time(day_count):
+    now = datetime.datetime.now()
+    return now - datetime.timedelta(days = day_count if now.workday != 0 else day_count + 2)
 
 def timestamp_to_stamp_str(xtTime):
     if type(xtTime) == int:
@@ -47,13 +50,11 @@ def to_pd_timestamp(the_time) -> pd.Timestamp:
     return pd.Timestamp(the_time)
 
 def get_first_timestamp_of_today():
-    # 获得当前时间时间戳
-    now = int(time.time())
-    #转换为其他日期格式,如:"%Y-%m-%d %H:%M:%S"
-    timeArray = time.localtime(now)
-    otherStyleTime = time.strftime("%Y-%m-%d", timeArray)
-    result = f"{otherStyleTime} 09:30:00"
-    return result
+    now = datetime.datetime.now()
+    if now.hour *100 + now.minute < 930:
+        now = now - datetime.timedelta(days = 1)
+    day_str = now.strftime("%Y%m%d")
+    return f"{day_str}092900"
     
 def merge_kdata(min_data: dict, tick_data:  dict):
     for stock_full_code, data in min_data:

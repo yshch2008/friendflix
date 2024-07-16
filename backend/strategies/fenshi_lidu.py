@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 # from  MyTT import *
+from constants.config import index_data
 from  utils.yourTT import *
 from xtquant import xtconstant
 
@@ -18,7 +19,12 @@ def fenshi_lidu(df:pd.DataFrame) -> pd.DataFrame:
     AMO=df.amount.values
     PRE = REF(CLOSE, 1)
     
-    AVE = AMO/ VOL/ 100
+    # FB= BARSLAST(TIMESTAMP == '') # DATE<>REF(DATE,1) #{当根K线的日期不等于前一根K线的日期，这样就确定当天第一根K线的位置}
+    # T=BARSLAST(FB) #{当天第一根K线距离现在的周期数}
+    # A1=SUM(AMO,T+1) #{从第一根K线开始累加成交金额}
+    # V1=SUM(VOL,T+1)*100 #{从第一根K线开始累加成交量，VOL单位为手，乘以100换算为股}
+    # JJ=A1/V1 #{累加成交金额除以累加成交量，得到均价}
+    AVE = SUM(AMO, 0)/ SUM(VOL, 0)/ 100
     均价向上运行 = (CLOSE > PRE) & (CLOSE/ AVE > 1 + 15/ 1000)
     均价向下运行 = (CLOSE < PRE) & (CLOSE/ AVE < 1 - 15/ 1000)
     
@@ -55,17 +61,9 @@ def fenshi_lidu(df:pd.DataFrame) -> pd.DataFrame:
     尖顶见顶 = SUM(X_27,0)*CROSS(COUNT(CLOSE<REF(CLOSE,1),BARSLAST(X_27)),0.5)
     尖底见底 = SUM(X_28,0)*CROSS(COUNT(CLOSE>REF(CLOSE,1),BARSLAST(X_28)),0.5)
     
-    卖出信号 = COUNT(二次上穿 | 急涨慢跌 | 尖顶见顶, 1) >= 1
-    买入信号 = COUNT(二次下穿 | 急跌慢涨 | 尖底见底, 1) >= 1 # 弱市避雷, 8000亿以上的量能可以考虑, 有企稳走二波的可能性 & (COUNT(二次上穿 | 急涨慢跌 | 尖顶见顶, 60) < 1 ) 
-    
-    df['fenshi_lidu'] = xtconstant.STOCK_SELL if 卖出信号[-1] else (xtconstant.STOCK_BUY if 买入信号[-1] else None)
-    # if 卖出信号:
-    #     df['fenshi_lidu'] = xtconstant.STOCK_SELL
-    # elif 买入信号:
-    #     df['fenshi_lidu'] = xtconstant.STOCK_BUY
-        
-    # df['时间'] = pd.to_datetime(df['time'], unit='ms')
-    # print(df)
+    df['卖出信号'] = COUNT(二次上穿 | 急涨慢跌 | 尖顶见顶, 1) >= 1
+    df['买入信号'] = COUNT(二次下穿 | 急跌慢涨 | 尖底见底, 1) >= 1 # 弱市避雷, 8000亿以上的量能可以考虑, 有企稳走二波的可能性 & (COUNT(二次上穿 | 急涨慢跌 | 尖顶见顶, 60) < 1 ) 
+    df['fenshi_lidu'] = df.apply(lambda row: xtconstant.STOCK_SELL if row['卖出信号'] else (xtconstant.STOCK_BUY if row['买入信号'] else None), axis=1)
     return df
 
 # 读取股票数据
